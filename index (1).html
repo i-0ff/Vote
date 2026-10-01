@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CYBER-VOTE MATRIX</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@500;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#050811;--card:rgba(13,20,36,.88);--ln:#1e293b;--b:#00f0ff;--g:#00ff88;--r:#ff3366;--o:#ff9900;--p:#b026ff;--t:#e2e8f0;--d:#7c8aa8}
+*{box-sizing:border-box;margin:0}
+body{min-height:100vh;display:flex;flex-direction:column;background:var(--bg);color:var(--t);font-family:'JetBrains Mono',monospace;font-size:14px;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;background-image:linear-gradient(rgba(0,240,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,240,255,.04) 1px,transparent 1px);background-size:30px 30px}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(transparent 0 2px,rgba(0,0,0,.22) 2px 4px);z-index:60}
+.o{font-family:'Orbitron',sans-serif}
+header{position:sticky;top:0;z-index:40;background:rgba(10,15,29,.92);backdrop-filter:blur(8px);border-bottom:1px solid rgba(0,240,255,.3);padding:12px 16px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+h1{font-family:Orbitron;font-weight:900;font-size:clamp(16px,3.4vw,24px);letter-spacing:.12em;background:linear-gradient(90deg,var(--b),var(--g),var(--p));-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 8px rgba(0,240,255,.6))}
+.hr{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:12px}
+.pill{border:1px solid rgba(0,255,136,.4);color:var(--g);border-radius:99px;padding:4px 12px;display:flex;gap:8px;align-items:center}
+.pill i{width:8px;height:8px;border-radius:50%;background:var(--g);animation:pl 1.4s infinite}
+@keyframes pl{50%{opacity:.3}}
+main{flex:1;width:100%;max-width:1180px;margin:0 auto;padding:20px 16px;position:relative}
+.screen{display:none}.screen.on{display:block}
+.card{background:var(--card);border:1px solid rgba(0,240,255,.3);border-radius:12px;padding:22px;backdrop-filter:blur(10px)}
+.card+.card,.stack>*+*{margin-top:18px}
+.glow{box-shadow:0 0 18px rgba(0,240,255,.3),inset 0 0 18px rgba(0,240,255,.1)}
+h2{font-family:Orbitron;font-weight:800;letter-spacing:.06em}
+h3{font-family:Orbitron;font-size:14px;letter-spacing:.06em;margin-bottom:12px}
+label{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--b);margin-bottom:6px}
+input,select{width:100%;background:#050811;border:1px solid rgba(0,240,255,.45);color:#fff;padding:11px 13px;border-radius:8px;font:inherit;margin-bottom:14px}
+input:focus,select:focus,button:focus-visible{outline:2px solid var(--g);outline-offset:1px}
+button{font-family:Orbitron;font-weight:800;letter-spacing:.05em;cursor:pointer;border-radius:8px;padding:11px 16px;border:1px solid var(--b);background:transparent;color:var(--b);font-size:12px;transition:.15s}
+button:hover{background:rgba(0,240,255,.18)}
+button:disabled{opacity:.4;cursor:not-allowed}
+.sm{font-family:'JetBrains Mono';font-weight:400;padding:5px 12px;border-color:var(--ln);color:var(--d);font-size:12px;letter-spacing:0}
+.go{background:linear-gradient(90deg,var(--b),var(--g));color:#000;border:0;width:100%;padding:14px}
+.go:hover{filter:brightness(1.12);background:linear-gradient(90deg,var(--b),var(--g))}
+.link{border:0;padding:4px;color:var(--d);text-decoration:underline;font-family:'JetBrains Mono';font-weight:400;text-transform:uppercase;font-size:12px}
+.cols{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+.col{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 4px;font-family:'JetBrains Mono';font-size:11px;border-width:2px}
+.col i{width:18px;height:18px;border-radius:50%;background:currentColor;box-shadow:0 0 8px currentColor}
+.col.sel{outline:2px solid #fff;outline-offset:2px;background:rgba(255,255,255,.1)}
+.err{color:var(--r);min-height:20px;margin-top:10px;font-size:13px}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px;vertical-align:middle}
+.av{width:42px;height:42px;border-radius:50%;border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-family:Orbitron;font-weight:900;color:#000;font-size:18px}
+.tag{font-size:11px;border:1px solid rgba(0,240,255,.5);color:var(--b);border-radius:5px;padding:2px 8px}
+.hud{text-align:center;min-height:360px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.radar{position:relative;width:230px;height:230px;border-radius:50%;border:2px solid rgba(0,240,255,.3);margin:20px 0;box-shadow:0 0 30px rgba(0,240,255,.15);overflow:hidden}
+.radar::before{content:"";position:absolute;inset:28px;border-radius:50%;border:1px solid rgba(0,240,255,.2)}
+.radar::after{content:"";position:absolute;inset:0;background:conic-gradient(from 0deg,rgba(0,240,255,.5),transparent 25%);animation:sw 3.6s linear infinite}
+.radar b{position:absolute;left:50%;top:50%;width:12px;height:12px;margin:-6px;border-radius:50%;background:var(--g);box-shadow:0 0 12px var(--g);z-index:2}
+@keyframes sw{to{transform:rotate(360deg)}}
+.wait{font-family:Orbitron;font-weight:800;font-size:clamp(15px,3vw,20px);color:var(--b);letter-spacing:.08em;animation:pg 2s ease-in-out infinite}
+@keyframes pg{50%{opacity:.45}}
+.vote{border:2px solid var(--g);box-shadow:0 0 30px rgba(0,255,136,.25);text-align:center;padding:34px 18px;position:relative}
+.vote .live{position:absolute;top:0;right:0;background:var(--g);color:#000;font-family:Orbitron;font-weight:800;font-size:10px;padding:4px 12px;border-bottom-left-radius:8px;animation:pl 1.4s infinite}
+.who{font-family:Orbitron;font-weight:900;font-size:clamp(34px,9vw,80px);color:#fff;text-shadow:0 0 28px var(--r),0 0 56px var(--r);margin:10px 0;word-break:break-word}
+.prompt{font-family:Orbitron;font-size:clamp(16px,3vw,24px);margin-bottom:26px}
+.big{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.big button{font-size:clamp(20px,5vw,32px);padding:24px 10px}
+.yes{color:var(--g);border:2px solid var(--g);box-shadow:0 0 16px rgba(0,255,136,.3)}.yes:hover{background:rgba(0,255,136,.2)}
+.no{color:var(--r);border:2px solid var(--r);box-shadow:0 0 16px rgba(255,51,102,.3)}.no:hover{background:rgba(255,51,102,.2)}
+.Y{color:var(--g)}.N{color:var(--r)}.D{color:var(--d)}
+.sum{display:grid;grid-template-columns:1fr 1fr;gap:14px;text-align:center;margin:16px 0}
+.sum div{border:1px solid;border-radius:8px;padding:14px;background:rgba(5,8,17,.7)}
+.sum b{display:block;font-family:Orbitron;font-weight:900;font-size:38px}
+.bar{height:18px;background:#050811;border:1px solid var(--ln);border-radius:99px;overflow:hidden;display:flex}
+.bar i{display:block;height:100%;transition:width .4s}
+.tabs{display:flex;gap:8px;border-bottom:1px solid var(--ln);margin:14px 0}
+.tabs button{border:0;border-bottom:2px solid transparent;border-radius:8px 8px 0 0;color:var(--d)}
+.tabs button.on{border-color:var(--b);color:var(--b);background:rgba(0,240,255,.1)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.g3{display:grid;grid-template-columns:2fr 1fr;gap:18px}
+.btns{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.box{background:rgba(5,8,17,.9);border:1px solid var(--ln);border-radius:8px;padding:12px;height:230px;overflow-y:auto;font-size:12px}
+.box>div{padding:6px 4px;border-bottom:1px solid var(--ln);display:flex;justify-content:space-between;gap:8px}
+.list{max-height:240px;overflow-y:auto}
+.list>div{display:flex;justify-content:space-between;background:#050811;border:1px solid var(--ln);border-radius:6px;padding:8px;margin-bottom:6px;font-size:12px}
+.chip{display:inline-flex;align-items:center;margin:0 8px 8px 0;font-family:'JetBrains Mono';font-weight:700;padding:8px 12px;border-color:var(--ln);color:#fff;letter-spacing:0;font-size:13px}
+.chip.t{border-color:var(--r);background:rgba(255,51,102,.15)}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.82);backdrop-filter:blur(6px);z-index:70;display:none;align-items:center;justify-content:center;padding:16px}
+.modal.on{display:flex}
+.modal .card{border:2px solid var(--p);max-width:420px;width:100%;position:relative}
+.x{position:absolute;top:12px;right:12px;border:0;color:var(--d);padding:4px 10px;font-size:16px}
+footer{border-top:1px solid var(--ln);text-align:center;padding:12px;font-size:11px;color:#64748b}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1a0a14;border:1px solid var(--r);color:#fff;padding:10px 18px;border-radius:8px;z-index:80;display:none}
+@media(max-width:780px){.g2,.g3{grid-template-columns:1fr}.big{grid-template-columns:1fr}.sum b{font-size:30px}}
+
+html{-webkit-text-size-adjust:100%}
+body{min-height:100vh;min-height:100dvh}
+button{touch-action:manipulation;-webkit-tap-highlight-color:transparent;min-height:44px}
+.link,.x,.sm{min-height:36px}
+header{padding-top:max(12px,env(safe-area-inset-top));padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+footer{padding-bottom:max(12px,env(safe-area-inset-bottom))}
+input,select{font-size:16px;min-height:46px}
+#conn{display:none;position:fixed;top:0;left:0;right:0;z-index:90;background:var(--o);color:#000;text-align:center;font-family:Orbitron;font-weight:800;font-size:12px;padding:6px}
+@media(max-width:780px){main{padding:12px 10px}.card{padding:16px}.radar{width:190px;height:190px}.cols{gap:6px}.hud{min-height:300px}.vote{padding:28px 12px}.big button{padding:26px 10px}.hr{width:100%;justify-content:space-between}.box{height:200px}}
+</style>
+</head>
+<body>
+<header>
+  <h1>CYBER-VOTE MATRIX</h1>
+  <div class="hr">
+    <div class="pill"><i></i><span><b id="cnt">0</b> ONLINE</span></div>
+    <button class="sm" id="sfx">🔊 SFX: ON</button>
+    <span class="tag" id="who" style="display:none"></span>
+  </div>
+</header>
+
+<main>
+<!-- LOGIN -->
+<section id="s-login" class="screen on">
+  <div class="card glow" style="max-width:440px;margin:24px auto">
+    <div style="text-align:center;margin-bottom:22px">
+      <h2 style="font-size:24px;margin-bottom:6px">INITIALIZE ACCESS</h2>
+      <p class="D" style="font-size:13px">Enter your call-sign and pick a colour.</p>
+    </div>
+    <label for="callsign">Player call-sign *</label>
+    <input id="callsign" maxlength="16" autocomplete="off" placeholder="e.g. CYBER_FOX">
+    <label>Signature colour</label>
+    <div class="cols" id="cols"></div>
+    <button class="go" id="join">ENTER VOTING MATRIX</button>
+    <div id="srv" class="D" style="font-size:12px;margin-top:10px"></div><div class="err" id="loginErr"></div>
+    <div style="text-align:center;margin-top:14px;padding-top:16px;border-top:1px solid var(--ln)">
+      <button class="link" id="openAdmin">🔐 Admin login</button>
+    </div>
+  </div>
+</section>
+
+<!-- PLAYER -->
+<section id="s-player" class="screen stack">
+  <div class="card row">
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="av" id="pAv">P</div>
+      <div><div><b class="o" id="pName" style="font-size:18px"></b> <span class="tag">PLAYER NODE</span></div><div class="D" style="font-size:11px;margin-top:3px">STATUS: CONNECTED &amp; SYNCHRONIZED</div></div>
+    </div>
+    <button class="sm" id="leave">DISCONNECT NODE</button>
+  </div>
+
+  <div class="card hud" id="pIdle">
+    <div class="radar"><b></b></div>
+    <div class="wait" id="idleTxt">WAITING FOR ADMIN TO START THE VOTE...</div>
+    <p class="D" style="margin-top:10px;max-width:420px">Link active. Stand by for the voting prompt.</p>
+  </div>
+
+  <div class="card vote" id="pVote" style="display:none">
+    <span class="live">LIVE VOTE</span>
+    <div class="D" style="letter-spacing:.14em;font-size:12px" id="vLabel">VOTE ON</div>
+    <div class="who" id="vTarget"></div>
+    <div class="prompt" id="vPrompt"></div>
+    <div class="big" id="vBtns"><button class="yes" data-v="YES">👍 YES</button><button class="no" data-v="NO">👎 NO</button></div>
+    <div id="vDone" style="display:none"><div class="o" style="font-size:13px;color:var(--d)">VOTE CONFIRMED</div><div class="who" id="vChoice" style="text-shadow:none"></div><div class="D">Your vote is locked in.</div></div>
+    <div id="vSelf" class="D" style="display:none">This vote is about you. Sit tight while everyone votes.</div>
+  </div>
+
+  <div class="card glow" id="pBc" style="display:none">
+    <div class="row"><h3 class="o" style="color:var(--b);margin:0">PUBLIC BROADCAST: LIVE RESULTS</h3><span class="tag">BROADCAST BY ADMIN</span></div>
+    <div class="tabs"><button class="on" data-tab="sum">📊 SUMMARY</button><button data-tab="brk">👥 WHO VOTED WHAT</button></div>
+    <div id="tab-sum"><div class="sum"><div style="border-color:rgba(0,255,136,.4)"><span class="D">YES</span><b class="Y" id="bY">0</b><span class="Y" id="bYp">0%</span></div><div style="border-color:rgba(255,51,102,.4)"><span class="D">NO</span><b class="N" id="bN">0</b><span class="N" id="bNp">0%</span></div></div><div class="bar"><i id="bbY" style="background:var(--g);width:50%"></i><i id="bbN" style="background:var(--r);width:50%"></i></div><p class="D" style="text-align:center;margin-top:8px" id="bT">TOTAL VOTES: 0</p></div>
+    <div id="tab-brk" style="display:none"><div class="g2"><div><h3 class="Y">👍 VOTED YES</h3><div class="list" id="lY"></div></div><div><h3 class="N">👎 VOTED NO</h3><div class="list" id="lN"></div></div></div></div>
+  </div>
+</section>
+
+<!-- ADMIN -->
+<section id="s-admin" class="screen stack">
+  <div class="card row" style="border-color:rgba(176,38,255,.5)">
+    <div style="display:flex;gap:12px;align-items:center"><div class="av" style="background:var(--p);box-shadow:0 0 15px var(--p)">A</div><div><h2 style="font-size:17px">ADMIN COMMAND DASHBOARD</h2><div style="color:var(--p);font-size:11px">FULL MATRIX MASTER PRIVILEGES</div></div></div>
+    <button class="sm" id="aOut">EXIT ADMIN CONSOLE</button>
+  </div>
+
+  <div class="g3">
+    <div class="card">
+      <h3>⚙️ VOTE CONFIGURATION</h3>
+      <div class="g2">
+        <div><label>Target player</label><select id="aTarget"></select></div>
+        <div><label>Preset questions</label><select id="aPreset"><option value="">-- preset or custom --</option><option>Should this player stay in the game?</option><option>Do you trust this player?</option><option>Should we approve this proposal?</option><option>Is this player the impostor?</option></select></div>
+      </div>
+      <label>Question text</label>
+      <input id="aPrompt" maxlength="120" value="Should this player stay in the game?">
+      <div class="btns">
+        <button id="aStart" style="border-color:var(--g);color:var(--g)">▶ START VOTE</button>
+        <button id="aEnd" style="border-color:var(--r);color:var(--r)">⏹ END VOTE</button>
+        <button id="aBc">📡 BROADCAST: OFF</button>
+      </div>
+      <p class="D" style="margin-top:12px;font-size:12px">Tip: click a player's name below to set them as the target.</p>
+      <div style="margin-top:8px" id="aChips"></div>
+    </div>
+    <div class="card">
+      <h3 class="row"><span>📊 LIVE METRICS</span><span class="tag" id="aStat">IDLE</span></h3>
+      <div class="row" style="margin-bottom:6px"><span class="Y">YES: <b id="aY">0</b></span><span class="N">NO: <b id="aN">0</b></span></div>
+      <div class="bar"><i id="abY" style="background:var(--g);width:50%"></i><i id="abN" style="background:var(--r);width:50%"></i></div>
+      <div style="margin-top:14px;font-size:12px" class="stack"><div class="row"><span class="D">TARGET</span><b id="aTgt">-</b></div><div class="row"><span class="D">PLAYERS ONLINE</span><b id="aPl">0</b></div><div class="row"><span class="D">ELIGIBLE VOTERS</span><b id="aEl">0</b></div><div class="row"><span class="D">VOTES CAST</span><b id="aVc" style="color:var(--b)">0</b></div></div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card"><h3>📜 AUDIT LOG</h3><div class="box" id="aLog"></div></div>
+    <div class="card"><h3>👥 EVERY VOTE / PLAYER STATUS</h3><div class="box" id="aPlayers"></div></div>
+  </div>
+  <div class="card"><div class="row"><h3 style="margin:0">🗂 PAST ROUNDS</h3><button class="sm" id="aClear">CLEAR EVERYTHING</button></div><div id="aHist" style="margin-top:12px" class="D">No finished rounds.</div></div>
+</section>
+</main>
+
+<div class="modal" id="modal">
+  <div class="card">
+    <button class="x" id="mClose">✕</button>
+    <h2 style="color:var(--p);text-align:center;font-size:20px;margin-bottom:18px">ADMIN ACCESS</h2>
+    <label>Admin ID</label><input id="aid" value="admin" autocomplete="off">
+    <label>Password</label><input id="apass" type="password">
+    <button class="go" id="aGo" style="background:var(--p);color:#000">AUTHENTICATE</button>
+    <div class="err" id="aErr"></div>
+    <p class="D" style="font-size:11px;margin-top:8px">Use the admin ID and password set on the server (ADMIN_PASS on Render).</p>
+  </div>
+</div>
+<div id="conn">RECONNECTING TO SERVER…</div><div id="toast"></div>
+<footer>CYBER-VOTE MATRIX &copy; 2026</footer>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const col=c=>/^#[0-9a-f]{6}$/i.test(c)?c:"#00f0ff";
+const GLOBAL="GLOBAL",COLORS=[["RED","#ff3366"],["GREEN","#00ff88"],["BLUE","#00f0ff"],["ORANGE","#ff9900"]];
+const mem={};
+const ls={get:k=>{try{return localStorage.getItem(k)}catch(e){return mem[k]||null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){mem[k]=v}},del:k=>{try{localStorage.removeItem(k)}catch(e){delete mem[k]}}};
+let token=ls.get("cv_token");
+if(!token){token=[...crypto.getRandomValues(new Uint8Array(16))].map(b=>b.toString(16).padStart(2,"0")).join("");ls.set("cv_token",token)}
+
+/* sound */
+let ac=null,mute=false;
+function tone(f,t,d,g=.1){if(mute)return;try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();if(ac.state==="suspended")ac.resume();const o=ac.createOscillator(),n=ac.createGain();o.type=t;o.frequency.value=f;n.gain.setValueAtTime(g,ac.currentTime);n.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+d);o.connect(n);n.connect(ac.destination);o.start();o.stop(ac.currentTime+d)}catch(e){}}
+const click=()=>tone(800,"sine",.08,.07),ding=()=>{tone(523,"triangle",.25,.14);setTimeout(()=>tone(659,"sine",.3,.14),100)},alarm=()=>tone(300,"sawtooth",.3,.1);
+$("sfx").onclick=()=>{mute=!mute;$("sfx").textContent=mute?"🔇 SFX: OFF":"🔊 SFX: ON";if(!mute)click()};
+let tt;function toast(m){const t=$("toast");t.textContent=m;t.style.display="block";clearTimeout(tt);tt=setTimeout(()=>t.style.display="none",3500)}
+
+/* state */
+const socket=io({reconnectionDelayMax:3000});
+let me=null,isAdmin=false,connected=false,selColor=COLORS[0][1],tab="sum",target=GLOBAL,lastRound=null,lastVote=null;
+let S={players:[],round:null,myVote:null,votes:[],history:[],logs:[]};
+const show=id=>document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("on",s.id===id));
+COLORS.forEach(([n,c],i)=>{const b=document.createElement("button");b.className="col"+(i?"":" sel");b.style.color=c;b.innerHTML=`<i></i>${n}`;b.onclick=()=>{click();selColor=c;document.querySelectorAll(".col").forEach(x=>x.classList.toggle("sel",x===b))};$("cols").appendChild(b)});
+
+/* connection */
+function status(){
+  $("srv").textContent=connected?"● Server connected":"Connecting to server… the free server can take about a minute to wake up.";
+  $("srv").style.color=connected?"var(--g)":"var(--o)";$("join").disabled=!connected;$("aGo").disabled=!connected;
+  $("conn").style.display=(!connected&&(me||isAdmin))?"block":"none";
+}
+socket.on("connect",()=>{connected=true;status();const a=ls.get("cv_admin");
+  if(a)socket.emit("admin:resume",a,r=>{if(r&&r.ok){isAdmin=true;show("s-admin");render()}else{ls.del("cv_admin");resumePlayer()}});else resumePlayer()});
+socket.on("disconnect",()=>{connected=false;status()});
+function resumePlayer(){let p=null;try{p=JSON.parse(ls.get("cv_profile")||"null")}catch(e){}if(p)join(p.name,p.color)}
+status();
+
+socket.on("state",s=>{
+  S=s;
+  if(s.admin&&!isAdmin){isAdmin=true;show("s-admin")}
+  if(!s.admin&&me&&s.joined===false)join(me.name,me.color);
+  const r=s.round;
+  if(r&&r.open&&r.id!==lastRound&&!s.admin){alarm();if(navigator.vibrate)navigator.vibrate(200)}
+  lastRound=r?r.id:null;
+  if(s.myVote&&!lastVote)ding();lastVote=s.myVote;
+  render();
+});
+
+/* player actions */
+function join(name,color){
+  socket.emit("join",{name,color,token},r=>{
+    if(r&&r.ok){me={name:r.name,color:r.color};ls.set("cv_profile",JSON.stringify(me));$("loginErr").textContent="";show("s-player");render()}
+    else{me=null;ls.del("cv_profile");$("loginErr").textContent=(r&&r.error)||"Could not join.";show("s-login");status()}
+  });
+}
+$("join").onclick=()=>{click();const n=$("callsign").value.trim();if(!n)return $("loginErr").textContent="Enter a call-sign.";join(n,selColor)};
+$("callsign").addEventListener("keydown",e=>e.key==="Enter"&&$("join").click());
+$("leave").onclick=()=>{click();socket.emit("leave");me=null;ls.del("cv_profile");$("callsign").value="";show("s-login");render()};
+$("vBtns").onclick=e=>{const b=e.target.closest("button[data-v]");if(!b||!S.round||!S.round.open||S.myVote)return;$("vBtns").querySelectorAll("button").forEach(x=>x.disabled=true);socket.emit("vote",b.dataset.v)};
+document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{click();tab=b.dataset.tab;render()});
+
+/* admin login */
+$("openAdmin").onclick=()=>{click();$("modal").classList.add("on");$("apass").focus()};
+$("mClose").onclick=()=>$("modal").classList.remove("on");
+$("apass").addEventListener("keydown",e=>e.key==="Enter"&&$("aGo").click());
+$("aGo").onclick=()=>{
+  $("aErr").textContent="";
+  socket.emit("admin:login",{id:$("aid").value.trim(),pass:$("apass").value},r=>{
+    if(r&&r.ok){ls.set("cv_admin",r.token);ls.del("cv_profile");me=null;isAdmin=true;$("modal").classList.remove("on");$("apass").value="";show("s-admin");render()}
+    else $("aErr").textContent=(r&&r.error)||"Wrong ID or password.";
+  });
+};
+$("aOut").onclick=()=>{socket.emit("admin:logout",ls.get("cv_admin"));ls.del("cv_admin");location.reload()};
+
+/* admin actions */
+$("aPreset").onchange=e=>{if(e.target.value)$("aPrompt").value=e.target.value};
+$("aTarget").onchange=e=>target=e.target.value;
+$("aChips").onclick=e=>{const b=e.target.closest("button[data-n]");if(b){click();target=b.dataset.n;render()}};
+$("aStart").onclick=()=>{alarm();socket.emit("admin:start",{target,prompt:$("aPrompt").value},r=>{if(r&&!r.ok)toast(r.error)})};
+$("aEnd").onclick=()=>{click();socket.emit("admin:end")};
+$("aBc").onclick=()=>{click();if(!S.round)return toast("Start a vote first.");socket.emit("admin:broadcast")};
+$("aClear").onclick=()=>{if(confirm("Delete the current round and ALL history?"))socket.emit("admin:clear")};
+
+/* render */
+const tally=a=>({y:a.filter(x=>x.vote==="YES"),n:a.filter(x=>x.vote==="NO"),t:a.length});
+const pct=(x,t)=>t?Math.round(x/t*100):0;
+const row=v=>`<div><span><span class="dot" style="background:${col(v.color)};box-shadow:0 0 6px ${col(v.color)}"></span><b>${esc(v.name)}</b></span><span class="D">${new Date(v.ts).toLocaleTimeString()}</span></div>`;
+function render(){
+  const online=S.players.filter(p=>p.online).length;$("cnt").textContent=online;
+  const w=$("who");w.style.display=(me||isAdmin)?"":"none";w.textContent=isAdmin?"ADMIN":me?me.name:"";
+  const round=S.round,T=tally(S.votes),yp=T.t?pct(T.y.length,T.t):50,np=T.t?100-yp:50;
+
+  if(me&&!isAdmin){
+    $("pName").textContent=me.name;$("pAv").textContent=[...me.name][0]||"P";$("pAv").style.background=col(me.color);$("pAv").style.boxShadow=`0 0 10px ${col(me.color)}`;
+    const open=!!(round&&round.open),self=open&&round.target===me.name;
+    $("pIdle").style.display=open?"none":"flex";$("pVote").style.display=open?"":"none";
+    $("idleTxt").textContent=round&&!round.open?"VOTE CLOSED. WAITING FOR THE NEXT ONE...":"WAITING FOR ADMIN TO START THE VOTE...";
+    if(open){
+      const g=round.target===GLOBAL;
+      $("vLabel").textContent=g?"VOTE FOR EVERYONE":"VOTE ON";$("vTarget").textContent=g?"GLOBAL":round.target;$("vPrompt").textContent=round.prompt||"";
+      $("vBtns").style.display=(!self&&!S.myVote)?"":"none";$("vBtns").querySelectorAll("button").forEach(b=>b.disabled=false);
+      $("vDone").style.display=S.myVote?"":"none";$("vSelf").style.display=self?"":"none";
+      if(S.myVote){$("vChoice").textContent=S.myVote;$("vChoice").className="who "+(S.myVote==="YES"?"Y":"N")}
+    }
+    const bc=!!(round&&round.broadcast);$("pBc").style.display=bc?"":"none";
+    if(bc){
+      $("bY").textContent=T.y.length;$("bN").textContent=T.n.length;$("bYp").textContent=pct(T.y.length,T.t)+"%";$("bNp").textContent=pct(T.n.length,T.t)+"%";
+      $("bbY").style.width=yp+"%";$("bbN").style.width=np+"%";$("bT").textContent="TOTAL VOTES: "+T.t;
+      $("tab-sum").style.display=tab==="sum"?"":"none";$("tab-brk").style.display=tab==="brk"?"":"none";
+      document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("on",b.dataset.tab===tab));
+      $("lY").innerHTML=T.y.map(row).join("")||'<span class="D">None yet.</span>';$("lN").innerHTML=T.n.map(row).join("")||'<span class="D">None yet.</span>';
+    }
+  }
+
+  if(isAdmin){
+    const names=[GLOBAL,...S.players.map(p=>p.name)];if(!names.includes(target))target=GLOBAL;
+    const sig=names.join("|")+"|"+target;
+    if($("aTarget").dataset.sig!==sig){$("aTarget").dataset.sig=sig;$("aTarget").innerHTML=names.map(n=>`<option value="${esc(n)}"${n===target?" selected":""}>${n===GLOBAL?"GLOBAL (everyone votes)":esc(n)}</option>`).join("")}
+    $("aChips").innerHTML=S.players.map(p=>`<button class="chip${p.name===target?" t":""}" data-n="${esc(p.name)}" style="${p.online?"":"opacity:.5"}"><span class="dot" style="background:${col(p.color)}"></span>${esc(p.name)}</button>`).join("")||'<span class="D">Waiting for players to join.</span>';
+    const open=!!(round&&round.open),elig=S.players.filter(p=>!round||p.name!==round.target);
+    $("aStat").textContent=!round?"IDLE":open?"ACTIVE":"ENDED";
+    $("aBc").textContent="📡 BROADCAST: "+(round&&round.broadcast?"ON":"OFF");$("aBc").style.background=round&&round.broadcast?"rgba(0,240,255,.25)":"";
+    $("aY").textContent=T.y.length;$("aN").textContent=T.n.length;$("abY").style.width=yp+"%";$("abN").style.width=np+"%";
+    $("aTgt").textContent=round?(round.target===GLOBAL?"GLOBAL":round.target):"-";$("aPl").textContent=online;$("aEl").textContent=round?elig.length:0;$("aVc").textContent=T.t;
+    const voted=new Set(S.votes.map(v=>v.name));
+    $("aPlayers").innerHTML=[...S.votes].sort((a,b)=>a.ts-b.ts).map(v=>`<div><span><span class="dot" style="background:${col(v.color)}"></span><b>${esc(v.name)}</b></span><b class="${v.vote==="YES"?"Y":"N"}">${v.vote}</b></div>`).join("")+
+      (round?elig.filter(p=>!voted.has(p.name)).map(p=>`<div><span><span class="dot" style="background:${col(p.color)}"></span>${esc(p.name)}</span><span class="D">pending</span></div>`).join(""):"")||'<span class="D">No votes yet.</span>';
+    $("aLog").innerHTML=S.logs.map(l=>`<div><span>${esc(l.m)}</span><span class="D">${new Date(l.t).toLocaleTimeString()}</span></div>`).join("");
+    $("aHist").innerHTML=S.history.length?S.history.map(h=>{const t=tally(h.votes);return`<details style="margin-bottom:8px"><summary style="cursor:pointer;color:var(--b)">${esc(h.target)} — ${esc(h.prompt||"")} — <span class="Y">YES ${t.y.length}</span> / <span class="N">NO ${t.n.length}</span> <span class="D">(${new Date(h.time).toLocaleString()})</span></summary><div class="list" style="margin-top:8px">${[...t.y,...t.n].map(v=>`<div><span><span class="dot" style="background:${col(v.color)}"></span>${esc(v.name)}</span><b class="${v.vote==="YES"?"Y":"N"}">${v.vote}</b></div>`).join("")||'<span class="D">No votes.</span>'}</div></details>`}).join(""):"No finished rounds.";
+  }
+}
+render();
+
+</script>
+</body>
+</html>
